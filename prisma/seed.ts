@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function createRoles() {
-  const roles = ['manager', 'employee'];
+  const roles = ['admin', 'manager', 'employee'];
 
   for (const role of roles) {
     await prisma.role.create({

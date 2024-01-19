@@ -1,12 +1,16 @@
 import { HttpException, HttpStatus, Injectable, Post } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { AuthDto } from './utils/auth.dto';
+import { AuthDto } from './utils/dtos/auth.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AppService {
 
-  constructor (private readonly prismaService: PrismaService) {}
+  constructor (
+    private readonly prismaService: PrismaService,
+    private readonly jwtService: JwtService
+  ) {}
 
   @Post()
   async auth(authDto: AuthDto) {
@@ -29,9 +33,12 @@ export class AppService {
       throw new HttpException('Wrong password', HttpStatus.UNAUTHORIZED);
     }
 
-    return {
+    const response = {
       name: user.name,
       role: user.role.name,
+      accessToken: this.jwtService.sign({ userId: user.id, role: user.role.name })
     };
+    console.log(response);
+    return response;
   }
 }

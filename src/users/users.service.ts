@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { FindAllDto } from '../utils/findAll.dto';
+import { FindAllDto } from '../utils/dtos/findAll.dto';
 import { user } from '@prisma/client';
 
 export const roundsOfHashing = 10;
