@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model role {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  user user[]
+}
+
+model user {
+  id         Int        @id @default(autoincrement())
+  email      String     @unique
+  name       String     @unique
+  password   String
+  role       role       @relation(fields: [role_id], references: [id])
+  role_id    Int
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  sale       sale[]
+  purchase   purchase[]
+}
+
+model supplier {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  email      String     @unique
+  cnpj       String     @unique
+  address    String
+  number     String
+  cep        String
+  city       String
+  phone      String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  product    product[]
+  purchase   purchase[]
+}
+
+model cashier {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  ip         String     @unique
+  created_at DateTime   @default(now())
+  sale       sale[]
+  purchase   purchase[]
+}
+
+model category {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  created_at DateTime  @default(now())
+  product    product[]
+}
+
+model product {
+  id               String             @id @default(uuid())
+  name             String             @unique
+  price            Float
+  weight           Float?
+  description      String?
+  image            String?
+  quantity         Int
+  created_at       DateTime           @default(now())
+  category         category           @relation(fields: [category_id], references: [id])
+  category_id      Int
+  supplier         supplier           @relation(fields: [supplier_id], references: [id])
+  supplier_id      Int
+  sale_product     sale_product[]
+  purchase_product purchase_product[]
+}
+
+model payment_method {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  created_at DateTime  @default(now())
+  payment    payment[]
+}
+
+model payment {
+  id                Int            @id @default(autoincrement())
+  created_at        DateTime       @default(now())
+  payment_method    payment_method @relation(fields: [payment_method_id], references: [id])
+  payment_method_id Int
+  sale              sale?          @relation(fields: [sale_id], references: [id])
+  sale_id           Int?
+  purchase          purchase?      @relation(fields: [purchase_id], references: [id])
+  purchase_id       Int?
+}
+
+model sale {
+  id           Int            @id @default(autoincrement())
+  total        Float
+  createdAt    DateTime       @default(now())
+  user         user           @relation(fields: [user_id], references: [id])
+  user_id      Int
+  cashier      cashier        @relation(fields: [cashier_id], references: [id])
+  cashier_id   Int
+  payment      payment[]
+  sale_product sale_product[]
+}
+
+model sale_product {
+  id         Int     @id @default(autoincrement())
+  quantity   Int
+  price      Float
+  sale       sale    @relation(fields: [sale_id], references: [id])
+  sale_id    Int
+  product    product @relation(fields: [product_id], references: [id])
+  product_id String
+}
+
+model purchase {
+  id               Int                @id @default(autoincrement())
+  total            Float
+  createdAt        DateTime           @default(now())
+  user             user               @relation(fields: [user_id], references: [id])
+  user_id          Int
+  supplier         supplier           @relation(fields: [supplier_id], references: [id])
+  supplier_id      Int
+  cashier          cashier            @relation(fields: [cashier_id], references: [id])
+  cashier_id       Int
+  payment          payment[]
+  purchase_product purchase_product[]
+}
+
+model purchase_product {
+  id          Int      @id @default(autoincrement())
+  quantity    Int
+  price       Float
+  purchase    purchase @relation(fields: [purchase_id], references: [id])
+  purchase_id Int
+  product     product  @relation(fields: [product_id], references: [id])
+  product_id  String
+}
