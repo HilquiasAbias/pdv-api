@@ -1,15 +1,17 @@
 import { HttpException, HttpStatus, Injectable, Post } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { AuthDto } from './utils/dtos/auth.dto';
 import { JwtService } from '@nestjs/jwt';
+import { EncryptionService } from './providers/encryption.service';
 
 @Injectable()
 export class AppService {
 
   constructor (
     private readonly prismaService: PrismaService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly encryptionService: EncryptionService
+
   ) {}
 
   @Post()
@@ -27,18 +29,18 @@ export class AppService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const passwordMatch = await bcrypt.compare(authDto.password, user.password);
-
-    if (!passwordMatch) {
-      throw new HttpException('Wrong password', HttpStatus.UNAUTHORIZED);
-    }
+    const sub = this.encryptionService.encrypt(JSON.stringify({
+      userId: user.id,
+      role: user.role.name
+    }));
 
     const response = {
       name: user.name,
+      email: user.email,
       role: user.role.name,
-      accessToken: this.jwtService.sign({ userId: user.id, role: user.role.name })
+      accessToken: this.jwtService.sign({ sub }),
     };
-    console.log(response);
+    
     return response;
   }
 }

@@ -21,7 +21,7 @@ export class UsersController {
 
   @Roles(RolesConstant.MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get()
+  @Post('paginate')
   findAll(@Body() findAllDto: FindAllDto) {
     return this.usersService.findAll(findAllDto);
   }
@@ -29,21 +29,21 @@ export class UsersController {
   @Roles(RolesConstant.MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
-  findOne(@Param('id') id: 1) {
+  findOne(@Param('id') id: number) {
     return this.usersService.findOne(+id);
   }
 
   @Roles(RolesConstant.MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Roles(RolesConstant.MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.usersService.remove(+id);
   }
 }

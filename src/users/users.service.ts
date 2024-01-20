@@ -50,7 +50,14 @@ export class UsersService {
     const nextLenght = findAllDto.pageSize;
     const order = findAllDto.orderBy ? findAllDto.orderBy : {};
     const filter = findAllDto.where ? findAllDto.where : {};
-    const select = findAllDto.select ? findAllDto.select : {};
+    const select = findAllDto.select && findAllDto.select ? findAllDto.select : {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      created_at: true,
+      updated_at: true
+    };
 
     try {
       const user = await this.prismaService.user.findMany({
@@ -73,17 +80,40 @@ export class UsersService {
         data: user
       };
     } catch (error) {
+      console.log(error);
       throw new HttpException("Something went wrong", HttpStatus.UNPROCESSABLE_ENTITY);
     }
   }
 
-  async findOne(id: number) {
+  async getForLogin(id: number) {
+    try {
+      const user = await this.prismaService.user.findFirst({
+        where: {
+          id: id
+        },
+        include: {
+          role: true
+        }
+      });
+
+      return user;
+    } catch (error) {
+      console.log(error);
+      if (error.code === 'P2025') {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      } else {
+        throw new HttpException("Something went wrong", HttpStatus.UNPROCESSABLE_ENTITY);
+      }
+    }
+  }
+
+  async findOne(id: number) {    
     try {
       const user = await this.prismaService.user.findFirstOrThrow({
         where: {
           id: id
         }
-      });
+      });      
 
       return {
         ...user,
